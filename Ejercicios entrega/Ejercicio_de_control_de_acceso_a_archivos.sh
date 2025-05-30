@@ -1,280 +1,216 @@
 #!/bin/bash
 
-# Verificar si el script se ejecuta como root
-# ---------------------------------
-# id -u devuelve el UID del usuario actual, 0 es root
-# -ne significa "no es igual a"
-# Si el UID no es 0, se muestra un mensaje y se sale del script
-if [ "$(id -u)" -ne 0 ]; then
-    echo "Este script debe ejecutarse como root."
-    exit 1
-fi
+dir="$HOME/practica_permisos"
+mkdir -p "$dir"
 
-# Función para verificar si existe un usuario
-existe_usuario() {
-    usuario="$1"
-    # id "$usuario" devuelve información del usuario si existe, si no, devuelve un error
-    # &>/dev/null redirige tanto la salida estándar como la de error a /dev/null, es decir, no muestra nada en pantalla
-    if id "$usuario" &>/dev/null; then
+# Verifica si el archivo ya existe
+existe_archivo() {
+    # -f verifica si es un archivo
+    if [[ -f "$dir/$1" ]]; then
         return 0
     else
-        echo "El usuario '$usuario' no existe."
         return 1
     fi
 }
 
-# Función para verificar si existe un grupo
-existe_grupo() {
-    grupo="$1"
-    # getent group "$grupo" devuelve información del grupo si existe, si no, devuelve un error
-    # &>/dev/null redirige tanto la salida estándar como la de error a /dev/null, es decir, no muestra nada en pantalla
-    if getent group "$grupo" > /dev/null; then
+# Verifica si el directorio ya existe
+existe_directorio() {
+    # -d verifica si es un directorio
+    if [[ -d "$dir/$1" ]]; then
         return 0
     else
-        echo "El grupo '$grupo' no existe."
         return 1
     fi
 }
 
-crear_usuario() {
-    echo
-    echo "Crear nuevo usuario"
-    echo "---------------------------------"
-
-    read -p "Ingrese el nombre del usuario: " usuario
-
-    if ! existe_usuario "$usuario"; then
-        # -m: crea automáticamente el directorio /home/nombre_usuario si no existe
-        # -s: especifica el shell por defecto del usuario
-        echo "Creando usuario '$usuario'..."
-        useradd -m -s /bin/bash "$usuario"
-        passwd "$usuario"
-        echo "Usuario '$usuario' creado con éxito."
+crear_archivo() {
+    if ! existe_archivo; then
+        touch "$dir/$1"
+        echo "Archivo $1 creado en $dir."
+    else
+        echo "El archivo $1 ya existe en $dir."
     fi
 }
 
-mostrar_informacion_usuario() {
-    echo
-    echo "Mostrar información de un usuario"
-    echo "---------------------------------"
-
-    read -p "Ingrese el nombre del usuario: " usuario
-
-    if existe_usuario "$usuario"; then
-        id "$usuario"
-        groups "$usuario"
+crear_directorio() {
+    if ! existe_directorio; then
+        mkdir "$dir/$1"
+        echo "Directorio $1 creado en $dir."
+    else
+        echo "El directorio $1 ya existe en $dir."
     fi
 }
 
-asignar_usuario_a_grupo() {
-    echo
-    echo "Asignar usuario a un grupo"
-    echo "---------------------------------"
+crear_archivo_directorio() {
+    read -p "Ingrese el nombre del archivo / directorio a crear: " nombre
+    read -p "Desea crear un archivo (A) o un directorio (D)? " tipo
 
-    read -p "Ingrese el nombre del usuario: " usuario
-    read -p "Ingrese el nombre del grupo: " grupo
+    if [[ -z "$nombre" ]]; then
+        echo "Debe proporcionar un nombre para el archivo / directorio."
+        return
+    fi
 
-    if existe_usuario "$usuario" && existe_grupo "$grupo"; then
-        echo "Asignando usuario '$usuario' al grupo '$grupo'..."
-        # El comando usermod se usa para modificar un usuario existente
-        # -a: agrega el usuario al grupo sin eliminarlo de otros grupos
-        # -G: especifica el grupo al que se va a agregar el usuario
-        # Si el usuario ya está en el grupo, no se hace nada
-        usermod -aG "$grupo" "$usuario"
-        echo "Usuario '$usuario' asignado al grupo '$grupo' con éxito."
+    if [[ "$tipo" == "A" ]]; then
+        crear_archivo "$nombre"
+    elif [[ "$tipo" == "D" ]]; then
+        crear_directorio "$nombre"
+    else
+        echo "Opción inválida."
     fi
 }
 
-cambiar_contrasena_usuario() {
-    echo
-    echo "Cambiar contraseña de un usuario"
-    echo "---------------------------------"
+ver_permisos() {
+    read -p "Ingrese el nombre del archivo / directorio: " nombre
 
-    read -p "Ingrese el nombre del usuario: " usuario
+    if [[ -z "$nombre" ]]; then
+        echo "Debe proporcionar un nombre para el archivo / directorio."
+        return
+    fi
 
-    if existe_usuario "$usuario"; then
-        passwd "$usuario"
-        echo "Contraseña del usuario '$usuario' cambiada con éxito."
+    # Verifica si el archivo / directorio existe
+    if ! (existe_archivo "$nombre" || existe_directorio "$nombre"); then
+        echo "El archivo / directorio $nombre no existe en $dir."
+        return
+    fi
+
+    echo "Permisos de $nombre: "
+    # Muestra los permisos del archivo / directorio
+    ls -ld "$dir/$nombre"
+}
+
+cambiar_permisos_numerico() {
+    read -p "Ingresa el nombre del archivo / directorio: " nombre
+    read -p "Ingresa el modo numérico (ej: 644, 755): " modo
+
+    if [[ -z "$nombre" || -z "$modo" ]]; then
+        echo "Debe proporcionar un nombre y un modo numérico."
+        return
+    fi
+
+    # Verifica si el archivo / directorio existe
+    if ! (existe_archivo "$nombre" || existe_directorio "$nombre"); then
+        echo "El archivo / directorio $nombre no existe en $dir."
+        return
+    fi
+
+    # Verifica que el modo sea un número válido
+    if ! [[ "$modo" =~ ^[0-7]{3,4}$ ]]; then
+        echo "Modo numérico inválido. Debe ser un número de 3 o 4 dígitos."
+        return
+    fi
+
+    chmod "$modo" "$dir/$nombre"
+    echo "Permisos cambiados a $modo."
+    ls -ld "$dir/$nombre"
+}
+
+cambiar_permisos_simbolico() {
+    read -p "Ingresa el nombre del archivo / directorio: " nombre
+    read -p "Ingresa el permiso simbólico (ej: u+x, g-w): " simb
+
+    if [[ -z "$nombre" || -z "$simb" ]]; then
+        echo "Debe proporcionar un nombre y un modo numérico."
+        return
+    fi
+
+    # Verifica si el archivo / directorio existe
+    if ! (existe_archivo "$nombre" || existe_directorio "$nombre"); then
+        echo "El archivo / directorio $nombre no existe en $dir."
+        return
+    fi
+
+    # Verifica que el permiso simbólico sea válido
+    if ! [[ "$simb" =~ ^[ugoa]*[+-=][rwxXst]*$ ]]; then
+        echo "Permiso simbólico inválido. Debe seguir el formato correcto."
+        return
+    fi
+
+    chmod "$simb" "$dir/$nombre"
+    echo "Permisos cambiados simbólicamente."
+    ls -ld "$dir/$nombre"
+}
+
+cambiar_propietario() {
+    # Verifica si el script se está ejecutando como root
+    # Para cambiar el propietario de un archivo o directorio, se necesita permisos de superusuario
+    # id -u devuelve el ID de usuario del usuario actual; 0 es el ID de root
+    if [ "$(id -u)" -ne 0 ]; then
+        echo "Este script debe ejecutarse como root para cambiar el propietario de archivos o directorios."
+        exit 1
+    fi
+
+    read -p "Ingresa el nombre del archivo / directorio: " nombre
+    read -p "Ingresa el nuevo propietario (usuario): " usuario
+
+    if [[ -z "$nombre" || -z "$usuario" ]]; then
+        echo "Debe proporcionar un nombre y un usuario."
+        return
+    fi
+
+    # Verifica si el archivo / directorio existe
+    if ! (existe_archivo "$nombre" || existe_directorio "$nombre"); then
+        echo "El archivo / directorio $nombre no existe en $dir."
+        return
+    fi
+
+    # Verifica si el usuario existe
+    if ! id -u "$usuario" &>/dev/null; then
+        echo "El usuario $usuario no existe."
+        return
+    fi
+
+    sudo chown "$usuario" "$dir/$nombre"
+    echo "Propietario cambiado a $usuario."
+    ls -ld "$dir/$nombre"
+}
+
+mostrar_y_cambiar_permisos_predeterminados() {
+    echo "Permisos predeterminados actuales: $(umask)"
+
+    read -p "Desea modificarlos? (S/N): " resp
+    if [[ "$resp" == "S" ]]; then
+        read -p "Ingresa el nuevo valor (ej: 022, 077): " nueva_umask
+
+        # Verifica que el valor ingresado sea un número válido
+        if ! [[ "$nueva_umask" =~ ^[0-7]{3}$ ]]; then
+            echo "Valor de umask inválido. Debe ser un número de 3 dígitos."
+            return
+        fi
+
+        # Cambia la umask
+        # La umask se establece con el comando umask, que afecta a los permisos predeterminados de los archivos y directorios creados
+        echo "Cambiando permisos predeterminados a $nueva_umask..."
+        umask "$nueva_umask"
+        echo "Nuevos permisos predeterminados establecidos: $(umask)"
+    else
+        echo "Operación cancelada."
     fi
 }
 
-eliminar_usuario() {
-    echo
-    echo "Eliminar un usuario"
-    echo "---------------------------------"
+eliminar_entorno() {
+    read -p "Desea eliminar el entorno de práctica? (S/N): " res
 
-    read -p "Ingrese el nombre del usuario: " usuario
-
-    if existe_usuario "$usuario"; then
-        echo "Eliminando usuario '$usuario'..."
-        # -r: elimina el directorio home del usuario y su contenido
-        userdel -r "$usuario"
-        echo "Usuario '$usuario' eliminado con éxito."
-    fi
-}
-
-mostrar_funciones_usuarios() {
-    echo
-    echo "=============================="
-    echo "FUNCIONES DE USUARIOS"
-    echo "=============================="
-    echo "1) Crear un usuario"
-    echo "2) Mostrar información de un usuario"
-    echo "3) Asignar un usuario a un grupo"
-    echo "4) Cambiar contraseña de un usuario"
-    echo "5) Eliminar un usuario"
-    echo "0) Volver al menú principal"
-    echo "=============================="
-}
-
-acceder_funciones_usuarios() {
-    while true; do
-        mostrar_funciones_usuarios
-        read -p "Selecciona una opción: " opcion
-
-        case $opcion in
-            1) crear_usuario ;;
-            2) mostrar_informacion_usuario ;;
-            3) asignar_usuario_a_grupo ;;
-            4) cambiar_contrasena_usuario ;;
-            5) eliminar_usuario ;;
-            0) break ;;
-            *) echo "Opción inválida. Inténtelo otra vez." ;;
-        esac
-    done
-}
-
-crear_grupo() {
-    echo
-    echo "Crear nuevo grupo"
-    echo "---------------------------------"
-
-    read -p "Ingrese el nombre del grupo: " grupo
-
-    if ! existe_grupo "$grupo"; then
-        echo "Creando grupo '$grupo'..."
-        groupadd "$grupo"
-        echo "Grupo '$grupo' creado con éxito."
-    fi
-}
-
-mostrar_informacion_grupo() {
-    echo
-    echo "Mostrar información de un grupo"
-    echo "---------------------------------"
-
-    read -p "Ingrese el nombre del grupo: " grupo
-
-    if existe_grupo "$grupo"; then
-        # getent group devuelve la información del grupo, incluyendo los usuarios asignados
-        getent group "$grupo"
-        echo
-        # Para obtener solo los usuarios asignados al grupo, usamos cut.
-        # La salida se separa por comas, así que usamos cut para obtener solo los usuarios
-        # -d: especifica el delimitador, en este caso ':'
-        # -f4: obtiene el cuarto campo, que es la lista de usuarios
-        echo "Usuarios asignados al grupo '$grupo':"
-        getent group "$grupo" | cut -d: -f4
-    fi
-}
-
-desasignar_usuario_de_grupo() {
-    echo
-    echo "Desasignar un usuario de un grupo"
-    echo "---------------------------------"
-
-    read -p "Ingrese el nombre del usuario: " usuario
-    read -p "Ingrese el nombre del grupo: " grupo
-
-    if existe_usuario "$usuario" && existe_grupo "$grupo"; then
-        echo "Desasignando usuario '$usuario' del grupo '$grupo'..."
-        # El comando gpasswd se usa para modificar la membresía de un grupo
-        # -d: elimina al usuario del grupo especificado
-        gpasswd -d "$usuario" "$grupo"
-        echo "Usuario '$usuario' desasignado del grupo '$grupo' con éxito."
-    fi
-}
-
-eliminar_grupo() {
-    echo
-    echo "Eliminar un grupo"
-    echo "---------------------------------"
-
-    read -p "Ingrese el nombre del grupo: " grupo
-
-    if existe_grupo "$grupo"; then
-        echo "Eliminando grupo '$grupo'..."
-        # -r: elimina el grupo y sus miembros, pero no elimina los usuarios
-        groupdel "$grupo"
-        echo "Grupo '$grupo' eliminado con éxito."
-    fi
-}
-
-mostrar_funciones_grupos() {
-    echo
-    echo "=============================="
-    echo "FUNCIONES DE GRUPOS"
-    echo "=============================="
-    echo "1) Crear un grupo"
-    echo "2) Mostrar información de un grupo"
-    echo "3) Asignar un usuario a un grupo"
-    echo "4) Desasignar un usuario de un grupo"
-    echo "5) Eliminar un grupo"
-    echo "0) Volver al menú principal"
-    echo "=============================="
-}
-
-acceder_funciones_grupos() {
-    while true; do
-        mostrar_funciones_grupos
-        read -p "Selecciona una opción: " opcion
-
-        case $opcion in
-            1) crear_grupo ;;
-            2) mostrar_informacion_grupo ;;
-            3) asignar_usuario_a_grupo ;;
-            4) desasignar_usuario_de_grupo ;;
-            5) eliminar_grupo ;;
-            0) break ;;
-            *) echo "Opción inválida. Inténtelo otra vez." ;;
-        esac
-    done
-}
-
-crear_directorio_compartido() {
-    echo
-    echo "Crear directorio compartido"
-    echo "---------------------------------"
-
-    read -p "Ingrese el nombre del directorio: " dir_nombre
-    read -p "Ingrese el grupo al que se asignará el directorio: " grupo
-
-    if existe_grupo "$grupo"; then
-        # Crear el directorio si no existe
-        mkdir -p "/home/$dir_nombre"
-        echo "Directorio '/home/$dir_nombre' creado."
-
-        # Cambiar el grupo del directorio
-        chown :$grupo "/home/$dir_nombre"
-        echo "Grupo del directorio cambiado a '$grupo'."
-
-        # Establecer permisos para que el grupo tenga acceso completo
-        # Permisos 770: propietario y grupo tienen permisos de lectura, escritura y ejecución; otros no tienen permisos
-        chmod 770 "/home/$dir_nombre"
-        echo "Permisos del directorio establecidos para el grupo '$grupo'."
+    if [[ "$res" == "S" && -d "$dir" ]]; then
+        rm -rf "$dir"
+        echo "Entorno eliminado."
+    else
+        echo "Operación cancelada."
     fi
 }
 
 mostrar_menu() {
-    echo
-    echo "=============================="
+    echo "=================================="
     echo "MENÚ"
-    echo "=============================="
-    echo "1) Funciones de usuarios"
-    echo "2) Funciones de grupos"
-    echo "3) Crear directorio compartido"
+    echo "=================================="
+    echo "1) Crear archivo o directorio"
+    echo "2) Ver permisos"
+    echo "3) Cambiar permisos (modo numérico)"
+    echo "4) Cambiar permisos (modo simbólico)"
+    echo "5) Cambiar propietario"
+    echo "6) Mostrar y cambiar permisos predeterminados"
+    echo "7) Eliminar entorno"
     echo "0) Salir"
-    echo "=============================="
+    echo "=================================="
 }
 
 # Bucle para mostrar menú de opciones
@@ -283,9 +219,13 @@ while true; do
     read -p "Selecciona una opción: " opcion
 
     case $opcion in
-        1) acceder_funciones_usuarios ;;
-        2) acceder_funciones_grupos ;;
-        3) crear_directorio_compartido ;;
+        1) crear_archivo_directorio ;;
+        2) ver_permisos ;;
+        3) cambiar_permisos_numerico ;;
+        4) cambiar_permisos_simbolico ;;
+        5) cambiar_propietario ;;
+        6) mostrar_y_cambiar_permisos_predeterminados ;;
+        7) eliminar_entorno ;;
         0) echo "Saliendo del ejercicio..."; break ;;
         *) echo "Opción inválida. Inténtelo otra vez." ;;
     esac
