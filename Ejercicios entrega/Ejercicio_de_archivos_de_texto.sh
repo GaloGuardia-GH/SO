@@ -1,6 +1,5 @@
 #!/bin/bash
 
-NOMBRE=""
 ARCHIVO=""
 
 crear_archivo() {
@@ -11,8 +10,7 @@ crear_archivo() {
     read -p "Nombre del archivo (sin espacios): " nombre
 
     # Declarar la variable ARCHIVO como global
-    declare -g NOMBRE="$nombre"
-    declare -g ARCHIVO="${NOMBRE}.txt"
+    declare -g ARCHIVO="${nombre}.txt"
 
     # Verificar si la variable está vacía
     if [[ -z "$ARCHIVO" ]]; then
@@ -95,7 +93,7 @@ buscar_y_reemplazar() {
 
 crear_backup() {
     # Crear copia de respaldo
-    BACKUP="${NOMBRE}.bak"
+    BACKUP="${ARCHIVO}.bak"
     cp "$ARCHIVO" "$BACKUP"
     echo "Copia de seguridad creada: $BACKUP"
 }
