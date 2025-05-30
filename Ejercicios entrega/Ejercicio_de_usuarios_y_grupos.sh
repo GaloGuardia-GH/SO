@@ -204,7 +204,6 @@ eliminar_grupo() {
 
     if existe_grupo "$grupo"; then
         echo "Eliminando grupo '$grupo'..."
-        # -r: elimina el grupo y sus miembros, pero no elimina los usuarios
         groupdel "$grupo"
         echo "Grupo '$grupo' eliminado con éxito."
     fi
