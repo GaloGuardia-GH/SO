@@ -198,7 +198,44 @@ eliminar_entorno() {
     fi
 }
 
+ayuda_cambiar_permisos_numerico() {
+    echo
+    echo "=================================="
+    echo " Ayuda - Cambiar permisos (modo numérico)"
+    echo "=================================="
+    echo "chmod [permisos] archivo"
+    echo "- Los permisos se expresan con 3 dígitos (usuario, grupo, otros)."
+    echo
+    echo "Ejemplos:"
+    echo "(*) 7: lectura (4) + escritura (2) + ejecución (1) = 7 (rwx)"
+    echo "(*) 6: lectura (4) + escritura (2) = 6 (rw-)"
+    echo "(*) 5: lectura (4) + ejecución (1) = 5 (r-x)"
+    echo
+    echo "Ejemplo de uso:"
+    echo "(*) chmod 755 archivo   # rwxr-xr-x"
+    echo "(*) chmod 644 archivo   # rw-r--r--"
+    echo "=================================="
+}
+
+ayuda_cambiar_permisos_simbolico() {
+    echo
+    echo "=================================="
+    echo " Ayuda - Cambiar permisos (modo simbólico)"
+    echo "=================================="
+    echo "chmod [quién][acción][permisos] archivo"
+    echo "- Quién: u (usuario), g (grupo), o (otros), a (todos)"
+    echo "- Acción: + (añadir), - (quitar), = (establecer)"
+    echo "- Permisos: r (lectura), w (escritura), x (ejecución)"
+    echo
+    echo "Ejemplos:"
+    echo "(*) chmod u+x archivo     # Añadir ejecución al usuario"
+    echo "(*) chmod g-w archivo     # Quitar escritura al grupo"
+    echo "(*) chmod o=r archivo     # Establecer solo lectura a otros"
+    echo "=================================="
+}
+
 mostrar_menu() {
+    echo
     echo "=================================="
     echo "MENÚ"
     echo "=================================="
@@ -209,6 +246,8 @@ mostrar_menu() {
     echo "5) Cambiar propietario"
     echo "6) Mostrar y cambiar permisos predeterminados"
     echo "7) Eliminar entorno"
+    echo "8) Ayuda - Cambiar permisos (modo numérico)"
+    echo "9) Ayuda - Cambiar permisos (modo simbólico)"
     echo "0) Salir"
     echo "=================================="
 }
@@ -226,6 +265,8 @@ while true; do
         5) cambiar_propietario ;;
         6) mostrar_y_cambiar_permisos_predeterminados ;;
         7) eliminar_entorno ;;
+        8) ayuda_cambiar_permisos_numerico ;;
+        9) ayuda_cambiar_permisos_simbolico ;;
         0) echo "Saliendo del ejercicio..."; break ;;
         *) echo "Opción inválida. Inténtelo otra vez." ;;
     esac
