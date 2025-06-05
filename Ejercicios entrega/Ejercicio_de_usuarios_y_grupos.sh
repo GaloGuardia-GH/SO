@@ -36,6 +36,7 @@ existe_grupo() {
     fi
 }
 
+# Función para crear un usuario
 crear_usuario() {
     echo
     echo "Crear nuevo usuario"
@@ -43,16 +44,23 @@ crear_usuario() {
 
     read -p "Ingrese el nombre del usuario: " usuario
 
+    # Verificar si el usuario ya existe
     if ! existe_usuario "$usuario"; then
         # -m: crea automáticamente el directorio /home/nombre_usuario si no existe
         # -s: especifica el shell por defecto del usuario
         echo "Creando usuario '$usuario'..."
+        # El comando useradd se usa para crear un nuevo usuario
+        # -m: crea el directorio home del usuario si no existe
+        # -s: especifica el shell por defecto del usuario
+        # Si el usuario ya existe, no se hace nada
         useradd -m -s /bin/bash "$usuario"
+        # El comando passwd se usa para establecer la contraseña del usuario
         passwd "$usuario"
         echo "Usuario '$usuario' creado con éxito."
     fi
 }
 
+# Función para mostrar información de un usuario
 mostrar_informacion_usuario() {
     echo
     echo "Mostrar información de un usuario"
@@ -60,12 +68,16 @@ mostrar_informacion_usuario() {
 
     read -p "Ingrese el nombre del usuario: " usuario
 
+    # Verificar si el usuario existe
     if existe_usuario "$usuario"; then
+        # El comando id muestra información del usuario, incluyendo UID, GID y grupos a los que pertenece
         id "$usuario"
+        # El comando groups muestra los grupos a los que pertenece el usuario
         groups "$usuario"
     fi
 }
 
+# Función para asignar un usuario a un grupo
 asignar_usuario_a_grupo() {
     echo
     echo "Asignar usuario a un grupo"
@@ -85,6 +97,7 @@ asignar_usuario_a_grupo() {
     fi
 }
 
+# Función para cambiar la contraseña de un usuario
 cambiar_contrasena_usuario() {
     echo
     echo "Cambiar contraseña de un usuario"
@@ -92,12 +105,15 @@ cambiar_contrasena_usuario() {
 
     read -p "Ingrese el nombre del usuario: " usuario
 
+    # Verificar si el usuario existe
     if existe_usuario "$usuario"; then
+        # El comando passwd se usa para cambiar la contraseña de un usuario
         passwd "$usuario"
         echo "Contraseña del usuario '$usuario' cambiada con éxito."
     fi
 }
 
+# Función para eliminar un usuario
 eliminar_usuario() {
     echo
     echo "Eliminar un usuario"
@@ -107,12 +123,14 @@ eliminar_usuario() {
 
     if existe_usuario "$usuario"; then
         echo "Eliminando usuario '$usuario'..."
+        # El comando userdel se usa para eliminar un usuario
         # -r: elimina el directorio home del usuario y su contenido
         userdel -r "$usuario"
         echo "Usuario '$usuario' eliminado con éxito."
     fi
 }
 
+# Función para mostrar las opciones de funciones de usuarios
 mostrar_funciones_usuarios() {
     echo
     echo "=============================="
@@ -127,6 +145,7 @@ mostrar_funciones_usuarios() {
     echo "=============================="
 }
 
+# Función para acceder a las funciones de usuarios
 acceder_funciones_usuarios() {
     while true; do
         mostrar_funciones_usuarios
@@ -144,6 +163,7 @@ acceder_funciones_usuarios() {
     done
 }
 
+# Función para crear un grupo
 crear_grupo() {
     echo
     echo "Crear nuevo grupo"
@@ -151,13 +171,17 @@ crear_grupo() {
 
     read -p "Ingrese el nombre del grupo: " grupo
 
+    # Verificar si el grupo ya existe
     if ! existe_grupo "$grupo"; then
         echo "Creando grupo '$grupo'..."
+        # El comando groupadd se usa para crear un nuevo grupo
+        # Si el grupo ya existe, no se hace nada
         groupadd "$grupo"
         echo "Grupo '$grupo' creado con éxito."
     fi
 }
 
+# Función para mostrar información de un grupo
 mostrar_informacion_grupo() {
     echo
     echo "Mostrar información de un grupo"
@@ -178,6 +202,7 @@ mostrar_informacion_grupo() {
     fi
 }
 
+# Función para desasignar un usuario de un grupo
 desasignar_usuario_de_grupo() {
     echo
     echo "Desasignar un usuario de un grupo"
@@ -195,6 +220,7 @@ desasignar_usuario_de_grupo() {
     fi
 }
 
+# Función para eliminar un grupo
 eliminar_grupo() {
     echo
     echo "Eliminar un grupo"
@@ -204,11 +230,15 @@ eliminar_grupo() {
 
     if existe_grupo "$grupo"; then
         echo "Eliminando grupo '$grupo'..."
+        # El comando groupdel se usa para eliminar un grupo
+        # Si el grupo tiene usuarios asignados, se eliminará solo si no hay usuarios en él
+        # Si hay usuarios asignados, se mostrará un error
         groupdel "$grupo"
         echo "Grupo '$grupo' eliminado con éxito."
     fi
 }
 
+# Función para mostrar las opciones de funciones de grupos
 mostrar_funciones_grupos() {
     echo
     echo "=============================="
@@ -223,6 +253,7 @@ mostrar_funciones_grupos() {
     echo "=============================="
 }
 
+# Función para acceder a las funciones de grupos
 acceder_funciones_grupos() {
     while true; do
         mostrar_funciones_grupos
@@ -240,6 +271,7 @@ acceder_funciones_grupos() {
     done
 }
 
+# Función para crear un directorio compartido
 crear_directorio_compartido() {
     echo
     echo "Crear directorio compartido"
@@ -264,6 +296,7 @@ crear_directorio_compartido() {
     fi
 }
 
+# Función para mostrar el menú de opciones
 mostrar_menu() {
     echo
     echo "=============================="

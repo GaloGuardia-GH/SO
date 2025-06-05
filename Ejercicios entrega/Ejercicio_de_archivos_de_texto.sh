@@ -2,6 +2,7 @@
 
 ARCHIVO=""
 
+# Función para crear un nuevo archivo de texto
 crear_archivo() {
     echo
     echo "Crear nuevo archivo de texto"
@@ -50,12 +51,14 @@ crear_archivo() {
         # echo añade un salto de línea al final, con -n no se agrega este salto
         echo -n "$contenido" > "$ARCHIVO"
         echo "Archivo '$ARCHIVO' creado con éxito."
+        # Se llama a la función mostrar_contenido para mostrar el contenido del archivo
         mostrar_contenido
     else
         echo "Archivo no guardado."
     fi
 }
 
+# Función para buscar y reemplazar texto en el archivo
 buscar_y_reemplazar() {
     echo
     echo "Buscar y reemplazar texto en el archivo"
@@ -79,6 +82,7 @@ buscar_y_reemplazar() {
     read -p "Reemplazar por: " reemplazo
 
     echo
+    # Preguntar si se desea crear un backup
     read -p "Desea crear un archivo backup? (S/N): " resp
     [[ "$resp" == "S" ]] && crear_backup
 
@@ -88,16 +92,21 @@ buscar_y_reemplazar() {
     cambio="Se reemplazó '$buscar' por '$reemplazo'"
 
     echo
+    # Se llama a la función guardar_log para registrar la operación
     guardar_log "$buscar" "$reemplazo" "$cambio"
 }
 
+# Función para crear un backup del archivo
 crear_backup() {
     # Crear copia de respaldo
     BACKUP="${ARCHIVO}.bak"
+    # El comando cp copia el archivo original al archivo de backup
+    # Si el archivo de backup ya existe, lo sobrescribe
     cp "$ARCHIVO" "$BACKUP"
     echo "Copia de seguridad creada: $BACKUP"
 }
 
+# Función para guardar el log de las operaciones
 guardar_log() {
     # Guardar en log
     echo "Registrando en log.txt..."
@@ -115,6 +124,7 @@ guardar_log() {
     echo "Operación registrada en 'log.txt'"
 }
 
+# Función para agregar encabezado y lista personalizada al archivo
 agregar_contenido() {
     echo
     echo "Agregar encabezado y lista personalizada"
@@ -162,6 +172,7 @@ agregar_contenido() {
     echo "Lista añadida al final del archivo."
 }
 
+# Función para mostrar el menú principal
 mostrar_menu() {
     echo
     echo "=============================="
@@ -177,14 +188,17 @@ mostrar_menu() {
     echo "=============================="
 }
 
+# Mostrar contenido del archivo
 mostrar_contenido() {
     echo
     echo "CONTENIDO DEL ARCHIVO"
     echo "----------------------------------"
+    # El comando cat muestra el contenido del archivo
     cat "$ARCHIVO"
     echo "----------------------------------"
 }
 
+# Mostrar ayuda de comandos de Vim
 mostrar_ayuda() {
     echo
     echo "COMANDOS VIM"

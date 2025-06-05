@@ -17,7 +17,7 @@ mostrar_dispositivos_bloque() {
     lsblk
 }
 
-# Mostrar uso del disco
+# Función para mostrar uso del disco
 mostrar_uso_disco() {
     echo "Informe de uso del disco:"
     echo "=================================="
@@ -26,7 +26,7 @@ mostrar_uso_disco() {
     df -h
 }
 
-# Montar un dispositivo
+# Función para montar un dispositivo
 montar_dispositivo() {
     # Verificar si el script se ejecuta como root
     # id -u devuelve el UID del usuario actual, 0 es root
@@ -65,10 +65,11 @@ montar_dispositivo() {
     fi
 
     echo "Montando $dispositivo en $punto_montaje..."
+    # mount para montar el dispositivo
     sudo mount "$dispositivo" "$punto_montaje" && echo "Montaje exitoso" || echo "Error al montar"
 }
 
-# Desmontar dispositivo
+# Función para desmontar un dispositivo
 desmontar_dispositivo() {
     # Verificar si el script se ejecuta como root
     # id -u devuelve el UID del usuario actual, 0 es root
@@ -108,15 +109,20 @@ desmontar_dispositivo() {
     read -p "¿Desea forzar el cierre de procesos y desmontar? (S/N): " respuesta
     if [[ "$respuesta" == "S" ]]; then
         echo "Matando procesos que acceden a $punto_montaje..."
+        # fuser para identificar procesos que usan el punto de montaje
+        # -k para matar esos procesos
+        # -m para especificar el punto de montaje
+        # sudo para ejecutar con privilegios de superusuario
         sudo fuser -km "$punto_montaje"
         echo "Desmontando..."
+        # unmount para desmontar el punto de montaje
         sudo umount "$punto_montaje" && echo "Desmontado exitosamente" || echo "Error al desmontar"
     else
         echo "Desmontaje cancelado."
     fi
 }
 
-# Mostrar dispositivos extraíbles montados
+# Función para mostrar dispositivos extraíbles montados en /run/media/$USER
 mostrar_dispositivos_extraibles() {
     # Verificar si el directorio existe y listar su contenido
     if [ ! -d "$BASE_RUN_MEDIA" ]; then
@@ -136,7 +142,7 @@ mostrar_dispositivos_extraibles() {
     fi
 }
 
-# Buscar archivos en un directorio dado
+# Función para buscar archivos por criterio
 buscar_archivos() {
     read -p "Ingrese el directorio donde buscar (ej: /home/$USER): " dir_buscar
     read -p "Ingrese criterio de búsqueda (ej: *.txt, nombre_exacto, -size +1M): " criterio
@@ -162,6 +168,7 @@ buscar_archivos() {
     find "$dir_buscar" -name "$criterio"
 }
 
+# Función para mostrar el menú de opciones
 mostrar_menu() {
     echo
     echo "=================================="

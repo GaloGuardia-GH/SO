@@ -58,6 +58,8 @@ administrar_proceso() {
         return
     fi
 
+    # Verificar si el proceso con el PID existe
+    # ps -p verifica si el proceso con el PID dado está en ejecución
     if ! ps -p "$pid" > /dev/null 2>&1; then
         echo "No existe un proceso con PID $pid."
         return
@@ -93,6 +95,7 @@ mostrar_procesos_segundo_plano() {
 
 # Función para terminar un proceso por nombre (pkill)
 kill_proceso() {
+    # Verificar si pkill está disponible
     if ! command -v pkill > /dev/null; then
         echo "El comando pkill no está disponible en este sistema."
         echo "Use la opción killall o instale pkill (paquete procps)."
@@ -117,6 +120,7 @@ kill_proceso() {
 
 # Función para terminar todos los procesos por nombre (killall)
 killall_proceso() {
+    # Verificar si killall está disponible
     if ! command -v killall > /dev/null; then
         echo "El comando killall no está disponible en este sistema."
         echo "Instale pkill (paquete procps)."
@@ -154,11 +158,13 @@ enviar_senales() {
 
 # Función para mostrar el promedio de carga
 mostrar_carga() {
+    # Verificar si el comando uptime
     if ! command -v uptime > /dev/null; then
         echo "El comando uptime no está disponible en este sistema."
         return
     fi
 
+    # Verificar si el comando w está disponible
     if ! command -v w > /dev/null; then
         echo "El comando uptime no está disponible en este sistema."
         return
@@ -187,6 +193,7 @@ terminar_procesos_en_segundo_plano() {
     echo "Todos los procesos en segundo plano han sido terminados."
 }
 
+# Función para mostrar el menú de opciones
 mostrar_menu() {
     echo
     echo "=================================="

@@ -205,6 +205,7 @@ sincronizar_directorios() {
     rsync -avz --delete "$ORIGEN/" "$SERVIDOR_REMOTO:$DIRECTORIO_REMOTO/"
 }
 
+# Función para mostrar el menú de opciones
 mostrar_menu() {
     echo
     echo "=================================="
