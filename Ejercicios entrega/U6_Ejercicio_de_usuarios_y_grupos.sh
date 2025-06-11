@@ -16,6 +16,7 @@ existe_usuario() {
     # id "$usuario" devuelve información del usuario si existe, si no, devuelve un error
     # &>/dev/null redirige tanto la salida estándar como la de error a /dev/null, es decir, no muestra nada en pantalla
     if id "$usuario" &>/dev/null; then
+        echo "El usuario '$usuario' existe."
         return 0
     else
         echo "El usuario '$usuario' no existe."
@@ -29,6 +30,7 @@ existe_grupo() {
     # getent group "$grupo" devuelve información del grupo si existe, si no, devuelve un error
     # &>/dev/null redirige tanto la salida estándar como la de error a /dev/null, es decir, no muestra nada en pantalla
     if getent group "$grupo" > /dev/null; then
+        echo "El grupo '$grupo' existe."
         return 0
     else
         echo "El grupo '$grupo' no existe."
