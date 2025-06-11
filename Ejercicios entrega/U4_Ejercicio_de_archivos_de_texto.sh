@@ -224,7 +224,7 @@ while true; do
 
     case $opcion in
         1) crear_archivo ;;
-        2) echo "Abriendo archivo con VIM..."; vim "$ARCHIVO" ;;
+        2) echo; ([[ -z "$ARCHIVO" ]] && echo "No se ha generado el archivo.") || (echo "Abriendo archivo con VIM..." && vim "$ARCHIVO") ;;
         3) buscar_y_reemplazar ;;
         4) agregar_contenido ;;
         5) mostrar_contenido ;;
