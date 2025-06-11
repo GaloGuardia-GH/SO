@@ -4,6 +4,7 @@ BASE_RUN_MEDIA="/run/media/$USER"
 
 # Función para mostrar información sobre dispositivos de bloque
 mostrar_dispositivos_bloque() {
+    echo
     echo "Dispositivos de bloque en /dev:"
     echo "=================================="
     # Listar dispositivos de bloque
@@ -19,6 +20,7 @@ mostrar_dispositivos_bloque() {
 
 # Función para mostrar uso del disco
 mostrar_uso_disco() {
+    echo
     echo "Informe de uso del disco:"
     echo "=================================="
     # df para mostrar uso del disco
@@ -28,6 +30,7 @@ mostrar_uso_disco() {
 
 # Función para montar un dispositivo
 montar_dispositivo() {
+    echo
     # Verificar si el script se ejecuta como root
     # id -u devuelve el UID del usuario actual, 0 es root
     # -ne significa "no es igual a"
@@ -71,6 +74,7 @@ montar_dispositivo() {
 
 # Función para desmontar un dispositivo
 desmontar_dispositivo() {
+    echo
     # Verificar si el script se ejecuta como root
     # id -u devuelve el UID del usuario actual, 0 es root
     # -ne significa "no es igual a"
@@ -124,6 +128,7 @@ desmontar_dispositivo() {
 
 # Función para mostrar dispositivos extraíbles montados en /run/media/$USER
 mostrar_dispositivos_extraibles() {
+    echo
     # Verificar si el directorio existe y listar su contenido
     if [ ! -d "$BASE_RUN_MEDIA" ]; then
         echo "El directorio $BASE_RUN_MEDIA no existe. Verifique si tiene dispositivos extraíbles montados."
@@ -144,6 +149,7 @@ mostrar_dispositivos_extraibles() {
 
 # Función para buscar archivos por criterio
 buscar_archivos() {
+    echo
     read -p "Ingrese el directorio donde buscar (ej: /home/$USER): " dir_buscar
     read -p "Ingrese criterio de búsqueda (ej: *.txt, nombre_exacto, -size +1M): " criterio
 
